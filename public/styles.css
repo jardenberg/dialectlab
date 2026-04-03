@@ -257,6 +257,9 @@ select {
   font-weight: 800;
   padding: 18px 20px;
   cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .record-button.is-recording {

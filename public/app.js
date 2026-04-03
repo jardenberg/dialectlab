@@ -42,6 +42,7 @@ let audioStream = null;
 let mediaRecorder = null;
 let audioChunks = [];
 let recordingStartedAt = 0;
+let activePointerId = null;
 
 function getBestSupportedMimeType() {
   const types = [
@@ -150,6 +151,16 @@ function renderMeta() {
     `Tempo: <strong>${Number(state.result.meta.speechSpeed).toFixed(2)}x</strong>`,
   ];
 
+  if (state.result.meta.clientRecordingMs) {
+    cards.push(`Inspelning: <strong>${formatLatency(state.result.meta.clientRecordingMs)}</strong>`);
+  }
+
+  if (state.result.meta.transcriptChars && state.result.meta.ttsChars) {
+    cards.push(
+      `Längd: <strong>${state.result.meta.transcriptChars}</strong> tecken in, <strong>${state.result.meta.ttsChars}</strong> tecken ut`,
+    );
+  }
+
   if (state.result.meta.accentStrategy) {
     cards.push(`Accentstrategi: <strong>${state.result.meta.accentStrategy}</strong>`);
   }
@@ -239,7 +250,7 @@ async function loadConfig() {
   }
 }
 
-async function submitAudio(audioBlob, mimeType) {
+async function submitAudio(audioBlob, mimeType, durationMs) {
   state.isSubmitting = true;
   state.error = null;
   state.result = null;
@@ -253,6 +264,7 @@ async function submitAudio(audioBlob, mimeType) {
     formData.append('strength', state.strength);
     formData.append('voice', state.voice);
     formData.append('speechSpeed', String(state.speechSpeed));
+    formData.append('clientRecordingMs', String(durationMs));
 
     const response = await fetch('/api/transform', {
       method: 'POST',
@@ -285,6 +297,7 @@ function stopRecording() {
   mediaRecorder.stop();
   stopTracks();
   state.isRecording = false;
+  activePointerId = null;
   render();
 }
 
@@ -333,7 +346,7 @@ async function startRecording() {
         return;
       }
 
-      submitAudio(new Blob(audioChunks, { type: mimeType }), mimeType);
+      submitAudio(new Blob(audioChunks, { type: mimeType }), mimeType, durationMs);
       audioChunks = [];
       mediaRecorder = null;
     });
@@ -352,12 +365,22 @@ async function startRecording() {
 
 recordButton.addEventListener('pointerdown', async (event) => {
   event.preventDefault();
+  activePointerId = event.pointerId;
+  if (recordButton.setPointerCapture) {
+    recordButton.setPointerCapture(event.pointerId);
+  }
   await startRecording();
 });
 
-['pointerup', 'pointerleave', 'pointercancel'].forEach((eventName) => {
+['pointerup', 'pointercancel'].forEach((eventName) => {
   recordButton.addEventListener(eventName, (event) => {
     event.preventDefault();
+    if (activePointerId !== null && event.pointerId !== activePointerId) {
+      return;
+    }
+    if (recordButton.releasePointerCapture && recordButton.hasPointerCapture?.(event.pointerId)) {
+      recordButton.releasePointerCapture(event.pointerId);
+    }
     stopRecording();
   });
 });

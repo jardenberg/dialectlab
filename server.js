@@ -14,7 +14,7 @@ const port = Number(process.env.PORT) || 8787;
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: (Number(process.env.DIALECTLAB_MAX_AUDIO_MB) || 25) * 1024 * 1024,
   },
 });
 
