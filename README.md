@@ -59,7 +59,7 @@ If you leave `ELEVENLABS_VOICE_ID` empty in this local repo, the current demo fa
 
 Current defaults bias for speed:
 
-- `DIALECTLAB_TEXT_MODEL=gpt-4o-mini`
+- `DIALECTLAB_TEXT_MODEL=gpt-5.4-mini`
 - `ELEVENLABS_MODEL_ID=eleven_flash_v2_5`
 
 If you want slightly higher audio fidelity and can tolerate more latency, set `ELEVENLABS_MODEL_ID=eleven_multilingual_v2`.
