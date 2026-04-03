@@ -262,6 +262,10 @@ select {
   -webkit-user-select: none;
 }
 
+.record-button.is-arming {
+  background: #d7b58c;
+}
+
 .record-button.is-recording {
   background: var(--accent);
   box-shadow: 0 0 0 12px rgba(200, 131, 67, 0.18);
@@ -277,6 +281,31 @@ select {
   padding: 14px 16px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.08);
+}
+
+.progress-shell {
+  margin-top: 12px;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c88343 0%, #f3d3a8 50%, #c88343 100%);
+  background-size: 200% 100%;
+  box-shadow: 0 0 18px rgba(200, 131, 67, 0.28);
+  transition: width 220ms ease;
+  animation: progress-shimmer 1.6s linear infinite;
+}
+
+.progress-hint {
+  margin-top: 8px;
+  color: #ddcfbf;
+  font-size: 0.9rem;
 }
 
 .audio-wrap {
@@ -330,6 +359,16 @@ audio {
 
 .hidden {
   display: none;
+}
+
+@keyframes progress-shimmer {
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 200% 50%;
+  }
 }
 
 @media (max-width: 900px) {

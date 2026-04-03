@@ -3,22 +3,50 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dialektlab</title>
+    <title>Gör mig skånsk | Svenska in. Skånska ut.</title>
+    <meta
+      name="description"
+      content="Prata svenska och hör repliken tillbaka i skånskare tappning. Gormigskånsk är ett litet röstlabb för iPhone och webben."
+    />
+    <meta name="theme-color" content="#17130e" />
+    <link rel="canonical" href="https://gormigskansk.jardenberg.se/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gormigskånsk" />
+    <meta property="og:url" content="https://gormigskansk.jardenberg.se/" />
+    <meta property="og:title" content="Gör mig skånsk | Svenska in. Skånska ut." />
+    <meta
+      property="og:description"
+      content="Prata svenska och hör repliken tillbaka i skånskare tappning. Gormigskånsk är ett litet röstlabb för iPhone och webben."
+    />
+    <meta property="og:image" content="https://gormigskansk.jardenberg.se/og-card.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Gormigskånsk med mikrofonikon och texten Gör mig skånsk." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Gör mig skånsk | Svenska in. Skånska ut." />
+    <meta
+      name="twitter:description"
+      content="Prata svenska och hör repliken tillbaka i skånskare tappning. Gormigskånsk är ett litet röstlabb för iPhone och webben."
+    />
+    <meta name="twitter:image" content="https://gormigskansk.jardenberg.se/og-card.png" />
+    <meta name="twitter:image:alt" content="Gormigskånsk med mikrofonikon och texten Gör mig skånsk." />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="hero-card">
-        <div class="eyebrow">Voice demo</div>
+        <div class="eyebrow">Gör mig skånsk</div>
         <h1>Svenska in. Skånska ut.</h1>
         <p class="hero-copy">
-          En fristående push-to-talk-prototyp för iPhone och webben. Prata svenska, släpp knappen,
-          och få tillbaka en skånskare version av samma replik.
+          Gormigskånsk är ett litet röstlabb för iPhone och webben. Tryck för att börja prata,
+          tryck igen för att stoppa, och få tillbaka en skånskare version av samma replik.
         </p>
         <div class="tag-row">
           <span>En talare</span>
           <span>Demo-kvalitet</span>
-          <span>Push-to-talk</span>
+          <span>Tryck för start/stopp</span>
           <span>OpenAI + ElevenLabs</span>
         </div>
       </header>
@@ -55,18 +83,22 @@
             <div>
               <div class="panel-label panel-label-dark">Inspelning</div>
               <p class="record-copy">
-                Håll inne knappen medan du pratar. När du släpper skickas ljudet till backend för
-                transkribering, omskrivning och uppläsning.
+                Tryck en gång för att börja spela in. Tryck igen för att stoppa. Första gången kan
+                webbläsaren be om mikrofonåtkomst innan inspelningen drar igång.
               </p>
             </div>
 
             <button id="record-button" class="record-button" type="button">
-              Håll inne för att prata
+              Tryck för att börja prata
             </button>
 
             <div id="status-message" class="status-box">
-              Håll inne knappen, prata svenska, släpp och lyssna.
+              Tryck för att börja prata.
             </div>
+            <div id="progress-shell" class="progress-shell hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+              <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="progress-hint" class="progress-hint hidden"></div>
           </div>
         </section>
 

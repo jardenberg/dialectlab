@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Gormigskånsk social card</title>
+  <desc id="desc">Social preview card for Gormigskånsk with microphone icon and Swedish branding.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17130e" />
+      <stop offset="100%" stop-color="#2d2218" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f3d3a8" />
+      <stop offset="100%" stop-color="#c88343" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c88343" stop-opacity="0.42" />
+      <stop offset="100%" stop-color="#c88343" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" rx="36" fill="url(#bg)" />
+  <circle cx="934" cy="316" r="230" fill="url(#glow)" />
+  <circle cx="934" cy="316" r="168" fill="#234141" opacity="0.9" />
+  <circle cx="934" cy="316" r="110" fill="#17130e" opacity="0.86" />
+  <g transform="translate(856 180)">
+    <rect x="28" y="0" width="100" height="170" rx="50" fill="url(#accent)" />
+    <path d="M0 112a78 78 0 0 0 156 0" fill="none" stroke="#f5efe6" stroke-linecap="round" stroke-width="24" />
+    <path d="M78 182v62" fill="none" stroke="#f5efe6" stroke-linecap="round" stroke-width="24" />
+    <path d="M26 270h104" fill="none" stroke="#f5efe6" stroke-linecap="round" stroke-width="24" />
+  </g>
+  <text x="82" y="108" fill="#d7b58c" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="28" font-weight="700" letter-spacing="8">GORMIGSKÅNSK</text>
+  <text x="82" y="248" fill="#f5efe6" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="106" font-weight="800">Gör mig</text>
+  <text x="82" y="366" fill="#f5efe6" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="106" font-weight="800">skånsk</text>
+  <text x="82" y="444" fill="#f3d3a8" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="42" font-weight="700">Svenska in. Skånska ut.</text>
+  <text x="82" y="524" fill="#e2d6c6" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="28">Tryck för att börja prata. Tryck igen för att stoppa.</text>
+</svg>

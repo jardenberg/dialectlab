@@ -6,6 +6,7 @@ const strengthOptions = [
 
 const state = {
   isRecording: false,
+  isPreparingRecorder: false,
   isSubmitting: false,
   strength: 'clear',
   voice: 'sage',
@@ -21,6 +22,8 @@ const state = {
   result: null,
   audioSrc: null,
   playbackNeedsTap: false,
+  processingProgress: 0,
+  processingStage: '',
   error: null,
 };
 
@@ -37,12 +40,24 @@ const voiceContainer = document.getElementById('voice-options');
 const voiceHint = document.getElementById('voice-hint');
 const tempoSlider = document.getElementById('tempo-slider');
 const tempoValue = document.getElementById('tempo-value');
+const progressShell = document.getElementById('progress-shell');
+const progressBar = document.getElementById('progress-bar');
+const progressHint = document.getElementById('progress-hint');
 
 let audioStream = null;
 let mediaRecorder = null;
 let audioChunks = [];
 let recordingStartedAt = 0;
-let activePointerId = null;
+let processingTimerId = null;
+let processingStartedAt = 0;
+
+const processingStages = [
+  { afterMs: 0, label: 'Laddar upp inspelningen...' },
+  { afterMs: 1600, label: 'Transkriberar svenskan...' },
+  { afterMs: 5000, label: 'Gör om texten till skånska...' },
+  { afterMs: 9500, label: 'Bygger rösten...' },
+  { afterMs: 15000, label: 'Polerar sista dragen...' },
+];
 
 function getBestSupportedMimeType() {
   const types = [
@@ -97,6 +112,48 @@ function setStatus(message) {
   statusMessage.textContent = message;
 }
 
+function getActiveProcessingStage(elapsedMs) {
+  let stage = processingStages[0];
+
+  processingStages.forEach((candidate) => {
+    if (elapsedMs >= candidate.afterMs) {
+      stage = candidate;
+    }
+  });
+
+  return stage.label;
+}
+
+function clearProcessingFeedback() {
+  if (processingTimerId) {
+    clearInterval(processingTimerId);
+    processingTimerId = null;
+  }
+}
+
+function updateProcessingFeedback() {
+  const elapsedMs = Date.now() - processingStartedAt;
+  state.processingStage = getActiveProcessingStage(elapsedMs);
+  state.processingProgress = Math.min(94, 8 + Math.round(86 * (1 - Math.exp(-elapsedMs / 12000))));
+  renderProgress();
+  renderStatus();
+}
+
+function startProcessingFeedback() {
+  clearProcessingFeedback();
+  processingStartedAt = Date.now();
+  state.processingProgress = 6;
+  state.processingStage = processingStages[0].label;
+  updateProcessingFeedback();
+  processingTimerId = window.setInterval(updateProcessingFeedback, 240);
+}
+
+function stopProcessingFeedback() {
+  clearProcessingFeedback();
+  state.processingProgress = 0;
+  state.processingStage = '';
+}
+
 function renderStrengthOptions() {
   strengthContainer.innerHTML = '';
 
@@ -139,6 +196,22 @@ function renderOutputControls() {
   tempoValue.textContent = `${Number(state.speechSpeed).toFixed(2)}x`;
 }
 
+function renderProgress() {
+  const isActive = state.isSubmitting;
+  progressShell.classList.toggle('hidden', !isActive);
+  progressHint.classList.toggle('hidden', !isActive);
+  progressBar.style.width = `${isActive ? state.processingProgress : 0}%`;
+
+  if (isActive) {
+    progressShell.setAttribute('aria-valuenow', String(Math.round(state.processingProgress)));
+    progressHint.textContent = state.processingStage;
+    return;
+  }
+
+  progressShell.removeAttribute('aria-valuenow');
+  progressHint.textContent = '';
+}
+
 function renderMeta() {
   if (!state.result) {
     metaCards.innerHTML = '<div class="meta-card">Ingen output ännu. Kör en första testfras.</div>';
@@ -165,6 +238,12 @@ function renderMeta() {
     cards.push(`Accentstrategi: <strong>${state.result.meta.accentStrategy}</strong>`);
   }
 
+  if (state.result.meta.timings) {
+    cards.push(
+      `Steg: <strong>${formatLatency(state.result.meta.timings.transcribeMs)}</strong> transkribering, <strong>${formatLatency(state.result.meta.timings.rewriteMs)}</strong> omskrivning, <strong>${formatLatency(state.result.meta.timings.ttsMs)}</strong> röst`,
+    );
+  }
+
   state.result.meta.warnings.forEach((warning) => {
     cards.push(`<span class="warning-text">${warning}</span>`);
   });
@@ -181,19 +260,34 @@ function renderAudio() {
 
   resultAudio.src = state.audioSrc;
   resultAudio.load();
-  resultAudio.play().then(() => {
-    state.playbackNeedsTap = false;
-    playButton.classList.add('hidden');
-  }).catch(() => {
-    state.playbackNeedsTap = true;
-    playButton.classList.remove('hidden');
-  });
+  resultAudio
+    .play()
+    .then(() => {
+      state.playbackNeedsTap = false;
+      playButton.classList.add('hidden');
+      renderStatus();
+    })
+    .catch(() => {
+      state.playbackNeedsTap = true;
+      playButton.classList.remove('hidden');
+      renderStatus();
+    });
 }
 
 function renderRecordButton() {
-  recordButton.textContent = state.isRecording ? 'Släpp för att skicka' : 'Håll inne för att prata';
+  if (state.isPreparingRecorder) {
+    recordButton.textContent = 'Öppnar mikrofonen...';
+  } else if (state.isRecording) {
+    recordButton.textContent = 'Stoppa inspelningen';
+  } else if (state.isSubmitting) {
+    recordButton.textContent = 'Bearbetar...';
+  } else {
+    recordButton.textContent = 'Tryck för att börja prata';
+  }
+
   recordButton.classList.toggle('is-recording', state.isRecording);
-  recordButton.disabled = state.isSubmitting;
+  recordButton.classList.toggle('is-arming', state.isPreparingRecorder);
+  recordButton.disabled = state.isSubmitting || state.isPreparingRecorder;
 }
 
 function renderText() {
@@ -213,21 +307,34 @@ function renderStatus() {
     setStatus(state.error);
     return;
   }
+  if (state.isPreparingRecorder) {
+    setStatus('Tillåt mikrofonen om webbläsaren frågar, så startar inspelningen direkt.');
+    return;
+  }
   if (state.isRecording) {
-    setStatus('Spelar in. Håll inne och prata.');
+    setStatus('Spelar in nu. Tryck igen när du vill stoppa.');
     return;
   }
   if (state.isSubmitting) {
-    setStatus('Transkriberar, vrider mot Skånska och läser upp resultatet...');
+    setStatus('Jobbar på det...');
     return;
   }
-  setStatus('Håll inne knappen, prata svenska, släpp och lyssna.');
+  if (state.playbackNeedsTap) {
+    setStatus('Klart. Tryck på Spela upp nu för att höra resultatet.');
+    return;
+  }
+  if (state.result) {
+    setStatus('Klart. Tryck igen för nästa runda.');
+    return;
+  }
+  setStatus('Tryck för att börja prata.');
 }
 
 function render() {
   renderStrengthOptions();
   renderVoiceOptions();
   renderOutputControls();
+  renderProgress();
   renderRecordButton();
   renderText();
   renderMeta();
@@ -256,6 +363,7 @@ async function submitAudio(audioBlob, mimeType, durationMs) {
   state.result = null;
   state.audioSrc = null;
   state.playbackNeedsTap = false;
+  startProcessingFeedback();
   render();
 
   try {
@@ -284,6 +392,7 @@ async function submitAudio(audioBlob, mimeType, durationMs) {
     state.error = error.message;
     render();
   } finally {
+    stopProcessingFeedback();
     state.isSubmitting = false;
     render();
   }
@@ -297,12 +406,11 @@ function stopRecording() {
   mediaRecorder.stop();
   stopTracks();
   state.isRecording = false;
-  activePointerId = null;
   render();
 }
 
 async function startRecording() {
-  if (state.isSubmitting || state.isRecording) {
+  if (state.isSubmitting || state.isRecording || state.isPreparingRecorder) {
     return;
   }
 
@@ -313,9 +421,11 @@ async function startRecording() {
   }
 
   try {
+    state.isPreparingRecorder = true;
     state.error = null;
     state.result = null;
     state.audioSrc = null;
+    state.playbackNeedsTap = false;
     render();
 
     audioStream = await navigator.mediaDevices.getUserMedia({
@@ -352,51 +462,27 @@ async function startRecording() {
     });
 
     mediaRecorder.start(200);
+    state.isPreparingRecorder = false;
     state.isRecording = true;
     render();
   } catch (_error) {
     stopTracks();
     mediaRecorder = null;
     audioChunks = [];
+    state.isPreparingRecorder = false;
     state.error = 'Mikrofonåtkomst nekades eller kunde inte startas.';
     render();
   }
 }
 
-recordButton.addEventListener('pointerdown', async (event) => {
+recordButton.addEventListener('click', async (event) => {
   event.preventDefault();
-  activePointerId = event.pointerId;
-  if (recordButton.setPointerCapture) {
-    recordButton.setPointerCapture(event.pointerId);
+  if (state.isRecording) {
+    stopRecording();
+    return;
   }
+
   await startRecording();
-});
-
-['pointerup', 'pointercancel'].forEach((eventName) => {
-  recordButton.addEventListener(eventName, (event) => {
-    event.preventDefault();
-    if (activePointerId !== null && event.pointerId !== activePointerId) {
-      return;
-    }
-    if (recordButton.releasePointerCapture && recordButton.hasPointerCapture?.(event.pointerId)) {
-      recordButton.releasePointerCapture(event.pointerId);
-    }
-    stopRecording();
-  });
-});
-
-recordButton.addEventListener('keydown', async (event) => {
-  if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) {
-    event.preventDefault();
-    await startRecording();
-  }
-});
-
-recordButton.addEventListener('keyup', (event) => {
-  if (event.key === ' ' || event.key === 'Enter') {
-    event.preventDefault();
-    stopRecording();
-  }
 });
 
 playButton.addEventListener('click', () => {

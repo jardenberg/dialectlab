@@ -13,7 +13,8 @@ This repo is intentionally separate from `2026GPT`.
 
 - Node + Express
 - plain browser frontend in `public/`
-- OpenAI for transcription, text rewrite, and TTS
+- OpenAI for transcription and rewrite
+- ElevenLabs for the default low-latency TTS path
 
 ## Run
 
@@ -51,10 +52,17 @@ For ElevenLabs, set:
 ```env
 ELEVENLABS_API_KEY=...
 ELEVENLABS_VOICE_ID=...
-ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+ELEVENLABS_MODEL_ID=eleven_flash_v2_5
 ```
 
 If you leave `ELEVENLABS_VOICE_ID` empty in this local repo, the current demo falls back to the Skanska voice you selected for this experiment.
+
+Current defaults bias for speed:
+
+- `DIALECTLAB_TEXT_MODEL=gpt-4o-mini`
+- `ELEVENLABS_MODEL_ID=eleven_flash_v2_5`
+
+If you want slightly higher audio fidelity and can tolerate more latency, set `ELEVENLABS_MODEL_ID=eleven_multilingual_v2`.
 
 ## Tempo
 
@@ -102,7 +110,7 @@ Optional:
 
 ```env
 DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
-ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+ELEVENLABS_MODEL_ID=eleven_flash_v2_5
 ```
 
 The default start command is already `npm start`, and the healthcheck path should be `/health`.
@@ -116,5 +124,5 @@ OpenAI-only output is still weak for a convincing regional dialect. ElevenLabs h
 - `server.js`: Express server and API route
 - `lib/openaiDialectDemo.js`: OpenAI pipeline
 - `public/index.html`: demo UI
-- `public/app.js`: push-to-talk browser logic
+- `public/app.js`: tap-to-start/tap-to-stop browser logic
 - `public/styles.css`: styling
