@@ -4,6 +4,18 @@ All notable changes to Gormigskånsk are tracked here.
 
 This changelog is reconstructed from the actual iteration history in this build thread, not just from commit messages.
 
+## v3.0.1 - 2026-04-03
+
+### Copy and footer cleanup
+
+- added audio download for the generated Skånska output
+- tightened the mobile layout so recording and output land earlier in the flow
+- updated the hero copy to describe the product as a fun little voice lab for mobile and web
+- moved the project tags out of the hero and into a proper footer
+- added footer contact information for `joakim@jardenberg.com`
+- added a more detailed visible version string using the app version plus build id
+- normalized the output playback helper text away from playful dialect copy and back into plain language
+
 ## v3.0.0 - 2026-04-03
 
 ### Multilingual input

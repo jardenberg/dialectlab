@@ -197,6 +197,10 @@ select {
   backdrop-filter: blur(10px);
 }
 
+.site-footer {
+  margin-top: 20px;
+}
+
 .panel-dark {
   background: linear-gradient(160deg, #234141 0%, #182c2c 100%);
   color: #eef7f4;
@@ -217,6 +221,33 @@ select {
 
 .panel-label-accent {
   color: #d7b58c;
+}
+
+.footer-copy {
+  margin: 16px 0 0;
+  max-width: 46rem;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.footer-link {
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+.tag-row-footer {
+  margin-top: 18px;
+}
+
+.footer-meta {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .settings-block + .settings-block {
@@ -549,5 +580,14 @@ audio {
   .action-row {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .site-footer {
+    margin-top: 14px;
+  }
+
+  .footer-copy,
+  .footer-meta {
+    font-size: 0.94rem;
   }
 }
