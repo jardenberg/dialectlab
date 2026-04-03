@@ -60,6 +60,7 @@ app.use('/api', (_req, res) => {
 app.use((req, res) => {
   const locale = getLocaleFromPath(req.path);
   const bundle = getLocaleBundle(locale);
+  res.set('Cache-Control', 'no-store');
   res.status(200).type('html').send(renderPage(locale, bundle));
 });
 

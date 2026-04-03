@@ -4,6 +4,14 @@ All notable changes to Gormigskånsk are tracked here.
 
 This changelog is reconstructed from the actual iteration history in this build thread, not just from commit messages.
 
+## v3.0.2 - 2026-04-03
+
+### Hotfix
+
+- fixed the `Cannot access 'audioBlob' before initialization` client error in the submit flow
+- bumped the public asset version so browsers fetch a fresh `app.js` after deploy
+- set locale-rendered HTML pages to `Cache-Control: no-store` to reduce stale frontend issues after future deploys
+
 ## v3.0.1 - 2026-04-03
 
 ### Copy and footer cleanup
