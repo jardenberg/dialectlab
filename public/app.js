@@ -4,6 +4,7 @@ const fallbackCopy = {
   transcriptPlaceholder: 'Transkriptet dyker upp här efter första körningen.',
   transformedPlaceholder: 'Den omskrivna repliken landar här.',
   ttsPlaceholder: 'Ett mer fonetiskt script för röstmotorn landar här.',
+  downloadAudio: 'Ladda ner ljudfil',
   recordButtonIdle: 'Tryck å snacka',
   recordButtonStop: 'Tryck för å stoppa',
   recordButtonPreparing: 'Öppnar mikrofonen...',
@@ -77,6 +78,7 @@ const state = {
   },
   result: null,
   audioSrc: null,
+  audioDownloadName: 'gormigskansk.mp3',
   playbackNeedsTap: false,
   processingProgress: 0,
   processingStage: '',
@@ -85,6 +87,7 @@ const state = {
 
 const recordButton = document.getElementById('record-button');
 const playButton = document.getElementById('play-button');
+const downloadLink = document.getElementById('download-link');
 const resultAudio = document.getElementById('result-audio');
 const statusMessage = document.getElementById('status-message');
 const transcriptBox = document.getElementById('transcript-box');
@@ -106,6 +109,7 @@ let audioChunks = [];
 let recordingStartedAt = 0;
 let processingTimerId = null;
 let processingStartedAt = 0;
+let activeAudioUrl = null;
 
 const processingStages = (copy.progressStages || fallbackCopy.progressStages).map((label, index) => ({
   afterMs: [0, 1600, 5000, 9500, 15000][index] ?? index * 3000,
@@ -159,6 +163,31 @@ function getFileExtension(mimeType) {
 
 function formatLatency(value) {
   return `${(value / 1000).toFixed(1)} s`;
+}
+
+function revokeAudioUrl() {
+  if (!activeAudioUrl) {
+    return;
+  }
+
+  URL.revokeObjectURL(activeAudioUrl);
+  activeAudioUrl = null;
+}
+
+function createAudioBlob(base64, mimeType) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new Blob([bytes], { type: mimeType });
+}
+
+function createDownloadName() {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  return `gormigskansk-${copy.locale || 'sv'}-${timestamp}.mp3`;
 }
 
 function stopTracks() {
@@ -329,13 +358,20 @@ function renderMeta() {
 
 function renderAudio() {
   if (!state.audioSrc) {
+    resultAudio.pause();
     resultAudio.removeAttribute('src');
     playButton.classList.add('hidden');
+    downloadLink.classList.add('hidden');
+    downloadLink.removeAttribute('href');
+    downloadLink.removeAttribute('download');
     return;
   }
 
   resultAudio.src = state.audioSrc;
   resultAudio.load();
+  downloadLink.href = state.audioSrc;
+  downloadLink.download = state.audioDownloadName;
+  downloadLink.classList.remove('hidden');
   resultAudio
     .play()
     .then(() => {
@@ -438,8 +474,11 @@ async function submitAudio(audioBlob, mimeType, durationMs) {
   state.isSubmitting = true;
   state.error = null;
   state.result = null;
+  revokeAudioUrl();
   state.audioSrc = null;
+  state.audioDownloadName = createDownloadName();
   state.playbackNeedsTap = false;
+  renderAudio();
   startProcessingFeedback();
   render();
 
@@ -462,7 +501,10 @@ async function submitAudio(audioBlob, mimeType, durationMs) {
     }
 
     state.result = payload;
-    state.audioSrc = `data:${payload.outputAudioMimeType};base64,${payload.outputAudioBase64}`;
+    const audioBlob = createAudioBlob(payload.outputAudioBase64, payload.outputAudioMimeType);
+    activeAudioUrl = URL.createObjectURL(audioBlob);
+    state.audioSrc = activeAudioUrl;
+    state.audioDownloadName = createDownloadName();
     render();
     renderAudio();
   } catch (error) {
@@ -501,8 +543,11 @@ async function startRecording() {
     state.isPreparingRecorder = true;
     state.error = null;
     state.result = null;
+    revokeAudioUrl();
     state.audioSrc = null;
+    state.audioDownloadName = createDownloadName();
     state.playbackNeedsTap = false;
+    renderAudio();
     render();
 
     audioStream = await navigator.mediaDevices.getUserMedia({
@@ -572,5 +617,6 @@ tempoSlider.addEventListener('input', () => {
 });
 
 window.addEventListener('beforeunload', stopTracks);
+window.addEventListener('beforeunload', revokeAudioUrl);
 
 loadConfig();

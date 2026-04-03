@@ -80,7 +80,8 @@ select {
   gap: 8px;
 }
 
-.locale-link {
+.locale-link,
+.locale-link:visited {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -89,8 +90,12 @@ select {
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.08);
-  color: #f5efe6;
+  color: #f5efe6 !important;
   text-decoration: none;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-fill-color: currentColor;
   font-size: 0.84rem;
   font-weight: 700;
   transition:
@@ -100,15 +105,25 @@ select {
     border-color 140ms ease;
 }
 
+.locale-link:focus {
+  outline: none;
+}
+
 .locale-link:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.14);
 }
 
-.locale-link.is-active {
+.locale-link:focus-visible {
+  outline: 2px solid #d7b58c;
+  outline-offset: 2px;
+}
+
+.locale-link.is-active,
+.locale-link.is-active:visited {
   border-color: #d7b58c;
   background: #f5efe6;
-  color: #17130e;
+  color: #17130e !important;
 }
 
 .hero-card h1,
@@ -143,8 +158,37 @@ select {
 .content-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "start output"
+    "settings output"
+    "transcript transformed"
+    "tts tts";
   gap: 20px;
   margin-top: 20px;
+}
+
+.panel-start {
+  grid-area: start;
+}
+
+.panel-output {
+  grid-area: output;
+}
+
+.panel-settings {
+  grid-area: settings;
+}
+
+.panel-transcript {
+  grid-area: transcript;
+}
+
+.panel-transformed {
+  grid-area: transformed;
+}
+
+.panel-tts {
+  grid-area: tts;
 }
 
 .panel {
@@ -177,11 +221,6 @@ select {
 
 .settings-block + .settings-block {
   margin-top: 18px;
-}
-
-.settings-block-after-record {
-  margin-top: 34px;
-  padding-top: 8px;
 }
 
 .settings-heading {
@@ -371,16 +410,30 @@ select {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 audio {
   width: 100%;
 }
 
 .secondary-button {
-  margin-top: 12px;
   background: #f5efe6;
   border: none;
   border-radius: 999px;
   font-weight: 700;
+}
+
+.secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  text-decoration: none;
 }
 
 .meta-grid {
@@ -430,15 +483,24 @@ audio {
 @media (max-width: 900px) {
   .content-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "start"
+      "output"
+      "settings"
+      "transcript"
+      "transformed"
+      "tts";
+    gap: 14px;
+    margin-top: 14px;
   }
 
   .page-shell {
-    padding-inline: 12px;
+    padding: 14px 12px 32px;
   }
 
   .panel,
   .hero-card {
-    padding: 20px;
+    padding: 18px;
   }
 
   .hero-top {
@@ -448,5 +510,44 @@ audio {
 
   .locale-switcher {
     justify-content: flex-start;
+  }
+
+  .hero-card h1 {
+    font-size: clamp(1.95rem, 10vw, 2.7rem);
+  }
+
+  .panel h2 {
+    font-size: clamp(1.9rem, 9vw, 2.45rem);
+  }
+
+  .hero-copy {
+    margin-top: 12px;
+    font-size: 0.97rem;
+    line-height: 1.42;
+  }
+
+  .tag-row {
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .tag-row span {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+
+  .record-card {
+    margin-top: 18px;
+    padding: 18px;
+  }
+
+  .audio-wrap {
+    margin-top: 16px;
+    padding: 14px;
+  }
+
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 }
