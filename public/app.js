@@ -501,8 +501,8 @@ async function submitAudio(audioBlob, mimeType, durationMs) {
     }
 
     state.result = payload;
-    const audioBlob = createAudioBlob(payload.outputAudioBase64, payload.outputAudioMimeType);
-    activeAudioUrl = URL.createObjectURL(audioBlob);
+    const outputAudioBlob = createAudioBlob(payload.outputAudioBase64, payload.outputAudioMimeType);
+    activeAudioUrl = URL.createObjectURL(outputAudioBlob);
     state.audioSrc = activeAudioUrl;
     state.audioDownloadName = createDownloadName();
     render();
