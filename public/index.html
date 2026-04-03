@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dialektlab</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero-card">
+        <div class="eyebrow">Voice demo</div>
+        <h1>Svenska in. Skånska ut.</h1>
+        <p class="hero-copy">
+          En fristående push-to-talk-prototyp för iPhone och webben. Prata svenska, släpp knappen,
+          och få tillbaka en skånskare version av samma replik.
+        </p>
+        <div class="tag-row">
+          <span>En talare</span>
+          <span>Demo-kvalitet</span>
+          <span>Push-to-talk</span>
+          <span>OpenAI + ElevenLabs</span>
+        </div>
+      </header>
+
+      <main class="content-grid">
+        <section class="panel">
+          <div class="panel-label">Inställningar</div>
+          <h2>Rigga demon</h2>
+
+          <div class="settings-block">
+            <div class="setting-title">Skånska-nivå</div>
+            <div class="option-grid" id="strength-options"></div>
+          </div>
+
+          <div class="settings-block">
+            <div class="setting-title">Röst just nu</div>
+            <div class="voice-grid" id="voice-options"></div>
+            <p class="hint-text" id="voice-hint"></p>
+          </div>
+
+          <div class="settings-block">
+            <div class="setting-title">Tempo</div>
+            <div class="slider-card">
+              <label class="slider-label" for="tempo-slider">
+                <span>Tempo</span>
+                <strong id="tempo-value">0.76x</strong>
+              </label>
+              <input id="tempo-slider" type="range" min="0.7" max="1.15" step="0.01" />
+              <p class="hint-text">Lägre värde gör rösten långsammare.</p>
+            </div>
+          </div>
+
+          <div class="record-card">
+            <div>
+              <div class="panel-label panel-label-dark">Inspelning</div>
+              <p class="record-copy">
+                Håll inne knappen medan du pratar. När du släpper skickas ljudet till backend för
+                transkribering, omskrivning och uppläsning.
+              </p>
+            </div>
+
+            <button id="record-button" class="record-button" type="button">
+              Håll inne för att prata
+            </button>
+
+            <div id="status-message" class="status-box">
+              Håll inne knappen, prata svenska, släpp och lyssna.
+            </div>
+          </div>
+        </section>
+
+        <section class="panel panel-dark">
+          <div class="panel-label panel-label-accent">Output</div>
+          <h2>Lyssna på resultatet</h2>
+          <p class="dark-copy">
+            Safari kan ibland kräva ett extra tryck för att spela upp ljud efter ett nätverksanrop.
+            Därför finns både autoplay-försök och vanlig spelarkontroll här.
+          </p>
+
+          <div class="audio-wrap">
+            <audio id="result-audio" controls></audio>
+            <button id="play-button" type="button" class="secondary-button hidden">Spela upp nu</button>
+          </div>
+
+          <div id="meta-cards" class="meta-grid">
+            <div class="meta-card">Ingen output ännu. Kör en första testfras.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-label">Transkript</div>
+          <h2>Modellen hörde</h2>
+          <div id="transcript-box" class="text-box">
+            Transkriptet dyker upp här efter första körningen.
+          </div>
+        </section>
+
+        <section class="panel panel-accent">
+          <div class="panel-label panel-label-accent">Omskrivet</div>
+          <h2>Skånska ut</h2>
+          <div id="transformed-box" class="text-box text-box-dark">
+            Den omskrivna repliken landar här.
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-label">TTS-script</div>
+          <h2>Det rösten faktiskt läser</h2>
+          <div id="tts-box" class="text-box">
+            Ett mer fonetiskt script för röstmotorn landar här.
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+  </html>

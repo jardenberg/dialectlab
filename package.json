@@ -1,0 +1,17 @@
+{
+  "name": "dialektlab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser demo for transforming spoken Swedish into playful Skanska with an OpenAI backend.",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.3.0",
+    "multer": "^2.0.2",
+    "openai": "^5.8.2"
+  }
+}
