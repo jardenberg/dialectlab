@@ -134,6 +134,16 @@ select {
   margin-top: 18px;
 }
 
+.settings-block-after-record {
+  margin-top: 22px;
+}
+
+.settings-heading {
+  margin: 10px 0 0;
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
 .setting-title {
   margin-bottom: 10px;
   font-weight: 700;
