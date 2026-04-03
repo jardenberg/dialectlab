@@ -1,4 +1,4 @@
-# Gormigskånsk
+# Gör mig skånsk
 
 Public demo: [gormigskansk.jardenberg.se](https://gormigskansk.jardenberg.se)
 
