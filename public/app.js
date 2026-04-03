@@ -116,6 +116,21 @@ const processingStages = (copy.progressStages || fallbackCopy.progressStages).ma
   label,
 }));
 
+function normalizeVoiceOption(voice) {
+  if (typeof voice === 'string') {
+    return { id: voice, label: voice };
+  }
+
+  if (voice && typeof voice === 'object') {
+    return {
+      id: voice.id || voice.value || voice.label,
+      label: voice.label || voice.id || voice.value,
+    };
+  }
+
+  return { id: String(voice || ''), label: String(voice || '') };
+}
+
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -264,13 +279,13 @@ function renderStrengthOptions() {
 function renderVoiceOptions() {
   voiceContainer.innerHTML = '';
 
-  state.config.availableVoices.forEach((voice) => {
+  state.config.availableVoices.map(normalizeVoiceOption).forEach((voice) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `voice-button ${state.voice === voice ? 'active' : ''}`;
-    button.textContent = voice;
+    button.className = `voice-button ${state.voice === voice.id ? 'active' : ''}`;
+    button.textContent = voice.label;
     button.addEventListener('click', () => {
-      state.voice = voice;
+      state.voice = voice.id;
       renderVoiceOptions();
     });
     voiceContainer.appendChild(button);

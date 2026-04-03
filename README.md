@@ -52,7 +52,7 @@ Current defaults bias for latency while keeping decent rewrite quality:
 ```env
 DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
 DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
-ELEVENLABS_MODEL_ID=eleven_flash_v2_5
+ELEVENLABS_MODEL_ID=eleven_turbo_v2_5
 DIALECTLAB_SPEECH_SPEED=0.76
 ```
 
@@ -60,7 +60,8 @@ Notes:
 
 - `gpt-4o-mini-transcribe` handles speech-to-text
 - `gpt-5.4-mini` is the current default rewrite model
-- `eleven_flash_v2_5` is the default TTS model for lower latency
+- `eleven_turbo_v2_5` is now the default TTS model for the current quality/speed balance
+- if you want to compare lower latency, switch `ELEVENLABS_MODEL_ID` to `eleven_flash_v2_5`
 - if you prefer slightly higher TTS fidelity and can tolerate more delay, switch `ELEVENLABS_MODEL_ID` to `eleven_multilingual_v2`
 
 ## Run Locally
@@ -72,6 +73,7 @@ Notes:
 OPENAI_API_KEY=...
 ELEVENLABS_API_KEY=...
 ELEVENLABS_VOICE_ID=...
+ELEVENLABS_JJ_VOICE_ID=...
 ```
 
 3. Install dependencies:
@@ -97,7 +99,8 @@ OPENAI_API_KEY=...
 DIALECTLAB_OPENAI_API_KEY=
 ELEVENLABS_API_KEY=...
 ELEVENLABS_VOICE_ID=...
-ELEVENLABS_MODEL_ID=eleven_flash_v2_5
+ELEVENLABS_JJ_VOICE_ID=...
+ELEVENLABS_MODEL_ID=eleven_turbo_v2_5
 
 DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
 DIALECTLAB_INPUT_LANGUAGE=
@@ -153,7 +156,8 @@ Recommended Railway variables:
 OPENAI_API_KEY=...
 ELEVENLABS_API_KEY=...
 ELEVENLABS_VOICE_ID=CuaAIFbkzX2kaNH5EtHZ
-ELEVENLABS_MODEL_ID=eleven_flash_v2_5
+ELEVENLABS_JJ_VOICE_ID=Z2ic84BAXoRvhU0mvJIa
+ELEVENLABS_MODEL_ID=eleven_turbo_v2_5
 DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
 DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
 DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
@@ -177,6 +181,15 @@ The public deployment is not just Railway. In production, `gormigskansk.jardenbe
 - social preview PNG: `public/og-card.png`
 
 Page metadata, canonical URLs, and hreflang tags are rendered from `lib/locales.js` and `lib/renderPage.js`.
+
+## Voice Presets
+
+When ElevenLabs is active, the demo currently exposes two configured voice buttons:
+
+- `ElevenLabs-Skanska`
+- `JJ-Skanska`
+
+The first uses `ELEVENLABS_VOICE_ID`. The second uses `ELEVENLABS_JJ_VOICE_ID`.
 
 ## Files
 

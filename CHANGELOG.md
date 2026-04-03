@@ -4,6 +4,15 @@ All notable changes to Gormigskånsk are tracked here.
 
 This changelog is reconstructed from the actual iteration history in this build thread, not just from commit messages.
 
+## v3.1.0 - 2026-04-04
+
+### Voice options and model defaults
+
+- added a second configured ElevenLabs voice preset, `JJ-Skanska`, alongside the existing `ElevenLabs-Skanska` option
+- fixed the ElevenLabs path so the selected configured voice is actually used for synthesis instead of always falling back to one voice id
+- switched the default ElevenLabs model from `eleven_flash_v2_5` to `eleven_turbo_v2_5`
+- updated docs and env examples for the new voice preset and model default
+
 ## v3.0.3 - 2026-04-03
 
 ### Selector and docs cleanup
