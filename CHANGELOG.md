@@ -4,6 +4,14 @@ All notable changes to Gormigskånsk are tracked here.
 
 This changelog is reconstructed from the actual iteration history in this build thread, not just from commit messages.
 
+## v3.0.3 - 2026-04-03
+
+### Selector and docs cleanup
+
+- kept `/pl` as a supported localized route without showing `Polski` in the hero language selector
+- tightened the visible language chips on mobile so the remaining buttons fit more cleanly
+- documented Cloudflare as part of the real public deployment stack alongside Railway
+
 ## v3.0.2 - 2026-04-03
 
 ### Hotfix
@@ -73,6 +81,7 @@ This changelog is reconstructed from the actual iteration history in this build 
 - added favicon and OG assets for sharing
 - pushed the standalone repo to GitHub
 - documented Railway deployment
+- exposed the public custom domain through Cloudflare in front of the app
 - deployed the public site at `https://gormigskansk.jardenberg.se`
 
 ## v2.0.0 - 2026-04-03

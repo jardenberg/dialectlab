@@ -541,6 +541,14 @@ audio {
 
   .locale-switcher {
     justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .locale-link,
+  .locale-link:visited {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 0.78rem;
   }
 
   .hero-card h1 {

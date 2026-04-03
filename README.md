@@ -42,6 +42,7 @@ The chrome and metadata are localized per route. The voice pipeline stays the sa
 - plain browser frontend in `public/`
 - OpenAI for transcription and dialect rewrite
 - ElevenLabs for the default TTS path
+- Cloudflare for the public custom domain, DNS, TLS, and edge delivery in front of the app
 - Railway for deployment
 
 ## Default Model Setup
@@ -160,6 +161,14 @@ DIALECTLAB_SPEECH_SPEED=0.76
 DIALECTLAB_TARGET_DIALECT=Skanska
 DIALECTLAB_IP_MAX=12
 ```
+
+## Production Edge
+
+The public deployment is not just Railway. In production, `gormigskansk.jardenberg.se` is exposed through Cloudflare in front of the Railway service. In practice that means:
+
+- Cloudflare handles the public custom domain, DNS, TLS termination, and edge-facing delivery
+- Railway runs the Node app itself
+- the app still controls its own HTML freshness with `Cache-Control: no-store` on locale-rendered pages
 
 ## Branding Assets
 
