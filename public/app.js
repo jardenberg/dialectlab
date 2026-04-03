@@ -224,6 +224,10 @@ function renderMeta() {
     `Tempo: <strong>${Number(state.result.meta.speechSpeed).toFixed(2)}x</strong>`,
   ];
 
+  if (state.result.meta.sourceLanguage) {
+    cards.push(`Inputspråk: <strong>${state.result.meta.sourceLanguage}</strong>`);
+  }
+
   if (state.result.meta.clientRecordingMs) {
     cards.push(`Inspelning: <strong>${formatLatency(state.result.meta.clientRecordingMs)}</strong>`);
   }
@@ -327,7 +331,7 @@ function renderStatus() {
     setStatus('Klart. Tryck igen för nästa runda.');
     return;
   }
-  setStatus('Tryck å snacka.');
+  setStatus('Tryck å snacka, på vilket språk du vill.');
 }
 
 function render() {

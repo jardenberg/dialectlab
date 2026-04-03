@@ -2,7 +2,7 @@
 
 Public demo: [gormigskansk.jardenberg.se](https://gormigskansk.jardenberg.se)
 
-This repo contains the standalone browser app behind Gormigskånsk: a small iPhone-friendly demo that takes spoken Swedish, rewrites it into a more Skånska-flavoured version, and returns audio in a Skånska target voice.
+This repo contains the standalone browser app behind Gormigskånsk: a small iPhone-friendly demo that takes spoken language input, rewrites it into a more Skånska-flavoured Swedish version, and returns audio in a Skånska target voice.
 
 The repo name stayed `dialektlab`, but the public-facing product and branding are now `Gormigskånsk`.
 
@@ -12,7 +12,7 @@ This project is intentionally separate from `2026GPT`.
 
 - records speech in the browser
 - transcribes the audio with OpenAI
-- rewrites the utterance into a Skånska-oriented version while trying to preserve meaning and length
+- rewrites the utterance into a Skånska-oriented Swedish version while trying to preserve meaning and length
 - renders the result with ElevenLabs using the configured target voice
 - plays the audio back in the browser
 
@@ -23,6 +23,7 @@ This project is intentionally separate from `2026GPT`.
 - first interaction may trigger the browser microphone permission dialog
 - recording is placed first in the UI so people can start immediately
 - processing feedback is shown with staged status text and a progress bar
+- source speech can be auto-detected instead of being locked to Swedish
 
 ## Stack
 
@@ -87,6 +88,7 @@ ELEVENLABS_VOICE_ID=...
 ELEVENLABS_MODEL_ID=eleven_flash_v2_5
 
 DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
+DIALECTLAB_INPUT_LANGUAGE=
 DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
 DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
 DIALECTLAB_SPEECH_SPEED=0.76
@@ -98,6 +100,7 @@ Notes:
 
 - `DIALECTLAB_OPENAI_API_KEY` is optional and only overrides `OPENAI_API_KEY`
 - `DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts` is optional but makes the intent explicit
+- leave `DIALECTLAB_INPUT_LANGUAGE` empty for auto-detection; only set it if you want to force one source language
 - `HOST` and `PORT` do not need to be set on Railway
 - `DIALECTLAB_TTS_MODEL` and `DIALECTLAB_TTS_VOICE` only matter on the OpenAI TTS fallback path
 
