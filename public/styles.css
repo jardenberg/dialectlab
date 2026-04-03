@@ -135,11 +135,12 @@ select {
 }
 
 .settings-block-after-record {
-  margin-top: 22px;
+  margin-top: 34px;
+  padding-top: 8px;
 }
 
 .settings-heading {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   font-size: 1.25rem;
   line-height: 1.1;
 }

@@ -214,7 +214,7 @@ function renderProgress() {
 
 function renderMeta() {
   if (!state.result) {
-    metaCards.innerHTML = '<div class="meta-card">Ingen output ännu. Kör en första testfras.</div>';
+    metaCards.innerHTML = '<div class="meta-card">Ingen skånska än. Kör en första testfras.</div>';
     return;
   }
 
@@ -278,11 +278,11 @@ function renderRecordButton() {
   if (state.isPreparingRecorder) {
     recordButton.textContent = 'Öppnar mikrofonen...';
   } else if (state.isRecording) {
-    recordButton.textContent = 'Stoppa inspelningen';
+    recordButton.textContent = 'Tryck för å stoppa';
   } else if (state.isSubmitting) {
     recordButton.textContent = 'Bearbetar...';
   } else {
-    recordButton.textContent = 'Tryck för att börja prata';
+    recordButton.textContent = 'Tryck å snacka';
   }
 
   recordButton.classList.toggle('is-recording', state.isRecording);
@@ -308,7 +308,7 @@ function renderStatus() {
     return;
   }
   if (state.isPreparingRecorder) {
-    setStatus('Tillåt mikrofonen om webbläsaren frågar, så startar inspelningen direkt.');
+    setStatus('Tillåt mikrofonen om webbläsarn frågar, så drar inspelningen igång direkt.');
     return;
   }
   if (state.isRecording) {
@@ -327,7 +327,7 @@ function renderStatus() {
     setStatus('Klart. Tryck igen för nästa runda.');
     return;
   }
-  setStatus('Tryck för att börja prata.');
+  setStatus('Tryck å snacka.');
 }
 
 function render() {
