@@ -1,25 +1,66 @@
-# Dialektlab
+# Gormigskånsk
 
-A standalone browser demo for:
+Public demo: [gormigskansk.jardenberg.se](https://gormigskansk.jardenberg.se)
 
-- recording spoken Swedish in the browser
-- transcribing it with OpenAI
-- rewriting it into playful Skanska-flavoured Swedish
-- generating audio back from the rewritten line
+This repo contains the standalone browser app behind Gormigskånsk: a small iPhone-friendly demo that takes spoken Swedish, rewrites it into a more Skånska-flavoured version, and returns audio in a Skånska target voice.
 
-This repo is intentionally separate from `2026GPT`.
+The repo name stayed `dialektlab`, but the public-facing product and branding are now `Gormigskånsk`.
+
+This project is intentionally separate from `2026GPT`.
+
+## What It Does
+
+- records speech in the browser
+- transcribes the audio with OpenAI
+- rewrites the utterance into a Skånska-oriented version while trying to preserve meaning and length
+- renders the result with ElevenLabs using the configured target voice
+- plays the audio back in the browser
+
+## Current UX
+
+- tap once to start recording
+- tap again to stop
+- first interaction may trigger the browser microphone permission dialog
+- recording is placed first in the UI so people can start immediately
+- processing feedback is shown with staged status text and a progress bar
 
 ## Stack
 
 - Node + Express
 - plain browser frontend in `public/`
-- OpenAI for transcription and rewrite
-- ElevenLabs for the default low-latency TTS path
+- OpenAI for transcription and dialect rewrite
+- ElevenLabs for the default TTS path
+- Railway for deployment
 
-## Run
+## Default Model Setup
+
+Current defaults bias for latency while keeping decent rewrite quality:
+
+```env
+DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
+DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
+ELEVENLABS_MODEL_ID=eleven_flash_v2_5
+DIALECTLAB_SPEECH_SPEED=0.76
+```
+
+Notes:
+
+- `gpt-4o-mini-transcribe` handles speech-to-text
+- `gpt-5.4-mini` is the current default rewrite model
+- `eleven_flash_v2_5` is the default TTS model for lower latency
+- if you prefer slightly higher TTS fidelity and can tolerate more delay, switch `ELEVENLABS_MODEL_ID` to `eleven_multilingual_v2`
+
+## Run Locally
 
 1. Copy `.env.example` to `.env`
-2. Set `OPENAI_API_KEY` or `DIALECTLAB_OPENAI_API_KEY`
+2. Set at least:
+
+```env
+OPENAI_API_KEY=...
+ELEVENLABS_API_KEY=...
+ELEVENLABS_VOICE_ID=...
+```
+
 3. Install dependencies:
 
 ```bash
@@ -34,95 +75,95 @@ npm run dev
 
 5. Open [http://localhost:8787](http://localhost:8787)
 
-## Backend selection
+## Environment Variables
 
-Dialektlab now supports two audio rendering paths:
+Commonly useful variables:
 
-- `openai_tts`: OpenAI transcription + rewrite + OpenAI TTS
-- `elevenlabs_tts`: OpenAI transcription + rewrite + ElevenLabs TTS
+```env
+OPENAI_API_KEY=...
+DIALECTLAB_OPENAI_API_KEY=
+ELEVENLABS_API_KEY=...
+ELEVENLABS_VOICE_ID=...
+ELEVENLABS_MODEL_ID=eleven_flash_v2_5
+
+DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
+DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
+DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
+DIALECTLAB_SPEECH_SPEED=0.76
+DIALECTLAB_TARGET_DIALECT=Skanska
+DIALECTLAB_IP_MAX=12
+```
+
+Notes:
+
+- `DIALECTLAB_OPENAI_API_KEY` is optional and only overrides `OPENAI_API_KEY`
+- `DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts` is optional but makes the intent explicit
+- `HOST` and `PORT` do not need to be set on Railway
+- `DIALECTLAB_TTS_MODEL` and `DIALECTLAB_TTS_VOICE` only matter on the OpenAI TTS fallback path
+
+## Backend Selection
+
+Two audio rendering paths exist:
+
+- `openai_tts`
+- `elevenlabs_tts`
 
 Selection rules:
 
 - if `DIALECTLAB_AUDIO_BACKEND` is set, that wins
-- otherwise, if `ELEVENLABS_API_KEY` exists, Dialektlab uses `elevenlabs_tts`
+- otherwise, if `ELEVENLABS_API_KEY` exists, the app uses `elevenlabs_tts`
 - otherwise, it falls back to `openai_tts`
 
-For ElevenLabs, set:
-
-```env
-ELEVENLABS_API_KEY=...
-ELEVENLABS_VOICE_ID=...
-ELEVENLABS_MODEL_ID=eleven_flash_v2_5
-```
-
-If you leave `ELEVENLABS_VOICE_ID` empty in this local repo, the current demo falls back to the Skanska voice you selected for this experiment.
-
-Current defaults bias for speed:
-
-- `DIALECTLAB_TEXT_MODEL=gpt-5.4-mini`
-- `ELEVENLABS_MODEL_ID=eleven_flash_v2_5`
-
-If you want slightly higher audio fidelity and can tolerate more latency, set `ELEVENLABS_MODEL_ID=eleven_multilingual_v2`.
-
-## Tempo
-
-Dialektlab now uses the voice provider's native speed control instead of local post-processing. For the current ElevenLabs path, this means one direct setting:
-
-- `DIALECTLAB_SPEECH_SPEED`: lower values make the output slower
-
-```env
-DIALECTLAB_SPEECH_SPEED=0.76
-```
-
-## iPhone notes
+## iPhone Notes
 
 Microphone access in mobile Safari generally requires a secure context. That means:
 
 - `http://localhost` works on the same device
 - a deployed HTTPS URL works
-- a tunnel such as Cloudflare Tunnel or ngrok works
+- a tunnel also works
 
 Plain local-network `http://192.168.x.x:8787` may not allow microphone capture on iPhone.
 
-## Deploy on Railway
+## Railway
 
 The app is already shaped correctly for Railway:
 
-- it binds to `0.0.0.0`
-- it respects Railway's `PORT`
-- it exposes `GET /health`
+- binds to `0.0.0.0`
+- respects Railway `PORT`
+- exposes `GET /health`
 
-Recommended deployment flow:
-
-1. Push this repo to GitHub
-2. In Railway, create a new service from `jardenberg/dialectlab`
-3. Let Railway detect the Node service automatically
-4. Set these variables in Railway:
+Recommended Railway variables:
 
 ```env
 OPENAI_API_KEY=...
 ELEVENLABS_API_KEY=...
-ELEVENLABS_VOICE_ID=...
-DIALECTLAB_SPEECH_SPEED=0.76
-```
-
-Optional:
-
-```env
-DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
+ELEVENLABS_VOICE_ID=CuaAIFbkzX2kaNH5EtHZ
 ELEVENLABS_MODEL_ID=eleven_flash_v2_5
+DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
+DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
+DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
+DIALECTLAB_SPEECH_SPEED=0.76
+DIALECTLAB_TARGET_DIALECT=Skanska
+DIALECTLAB_IP_MAX=12
 ```
 
-The default start command is already `npm start`, and the healthcheck path should be `/health`.
+## Branding Assets
 
-## Current limitation
+- favicon: `public/favicon.svg`
+- social preview source: `public/og-card.svg`
+- social preview PNG: `public/og-card.png`
 
-OpenAI-only output is still weak for a convincing regional dialect. ElevenLabs helps much more when you already have a strongly accented target voice, but this is still not the same-speaker illusion. That remains a later step.
+The public site metadata is configured in `public/index.html`.
 
 ## Files
 
-- `server.js`: Express server and API route
-- `lib/openaiDialectDemo.js`: OpenAI pipeline
-- `public/index.html`: demo UI
+- `server.js`: Express server and API routes
+- `lib/openaiDialectDemo.js`: OpenAI + ElevenLabs pipeline
+- `public/index.html`: page shell and metadata
 - `public/app.js`: tap-to-start/tap-to-stop browser logic
 - `public/styles.css`: styling
+- `CHANGELOG.md`: project history
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for the build history from this project thread.
