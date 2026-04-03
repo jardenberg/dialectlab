@@ -1,8 +1,8 @@
 {
   "name": "dialektlab",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Gormigskansk browser demo for transforming spoken Swedish into playful Skanska with OpenAI and ElevenLabs.",
+  "description": "Gormigskansk browser demo for turning spoken input in any language into playful Skanska-flavoured Swedish with OpenAI and ElevenLabs.",
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js"

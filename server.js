@@ -5,6 +5,8 @@ const express = require('express');
 const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const { transformSpeechToDialect, getPublicConfig } = require('./lib/openaiDialectDemo');
+const { getLocaleBundle, getLocaleFromPath } = require('./lib/locales');
+const { renderPage } = require('./lib/renderPage');
 
 const app = express();
 const publicDir = path.join(__dirname, 'public');
@@ -28,7 +30,7 @@ const transformLimiter = rateLimit({
 
 app.disable('x-powered-by');
 app.use(express.json());
-app.use(express.static(publicDir));
+app.use(express.static(publicDir, { index: false }));
 
 app.get('/health', (_req, res) => {
   res.status(200).json({ ok: true });
@@ -55,8 +57,10 @@ app.use('/api', (_req, res) => {
   res.status(404).json({ message: 'API route not found.' });
 });
 
-app.use((_req, res) => {
-  res.sendFile(path.join(publicDir, 'index.html'));
+app.use((req, res) => {
+  const locale = getLocaleFromPath(req.path);
+  const bundle = getLocaleBundle(locale);
+  res.status(200).type('html').send(renderPage(locale, bundle));
 });
 
 app.listen(port, host, () => {

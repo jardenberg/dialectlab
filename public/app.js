@@ -1,8 +1,64 @@
-const strengthOptions = [
-  { value: 'subtle', label: 'Lätt', hint: 'Mest nära originalet' },
-  { value: 'clear', label: 'Tydlig', hint: 'Bästa demo-nivån' },
-  { value: 'theatrical', label: 'Maxad', hint: 'Överdriven och rolig' },
-];
+const fallbackCopy = {
+  locale: 'sv',
+  noResult: 'Ingen skånska än. Kör en första testfras.',
+  transcriptPlaceholder: 'Transkriptet dyker upp här efter första körningen.',
+  transformedPlaceholder: 'Den omskrivna repliken landar här.',
+  ttsPlaceholder: 'Ett mer fonetiskt script för röstmotorn landar här.',
+  recordButtonIdle: 'Tryck å snacka',
+  recordButtonStop: 'Tryck för å stoppa',
+  recordButtonPreparing: 'Öppnar mikrofonen...',
+  recordButtonSubmitting: 'Bearbetar...',
+  statusIdle: 'Tryck å snacka, på vilket språk du vill.',
+  statusPreparing: 'Tillåt mikrofonen om webbläsarn frågar, så drar inspelningen igång direkt.',
+  statusRecording: 'Spelar in nu. Tryck igen när du vill stoppa.',
+  statusSubmitting: 'Jobbar på det...',
+  statusPlayback: 'Klart. Tryck på Spela upp nu för att höra resultatet.',
+  statusDone: 'Klart. Tryck igen för nästa runda.',
+  progressStages: [
+    'Laddar upp inspelningen...',
+    'Transkriberar talet...',
+    'Vrider texten mot skånska...',
+    'Bygger rösten...',
+    'Polerar sista dragen...',
+  ],
+  strengthOptions: [
+    { value: 'subtle', label: 'Lätt', hint: 'Mest nära originalet' },
+    { value: 'clear', label: 'Tydlig', hint: 'Bästa demo-nivån' },
+    { value: 'theatrical', label: 'Maxad', hint: 'Överdriven och rolig' },
+  ],
+  metaLabels: {
+    latency: 'Latens',
+    ttsVoice: 'TTS-röst',
+    builtin: 'inbyggd',
+    configured: 'konfigurerad',
+    tempo: 'Tempo',
+    inputLanguage: 'Inputspråk',
+    recording: 'Inspelning',
+    length: 'Längd',
+    charsIn: 'tecken in',
+    charsOut: 'tecken ut',
+    accentStrategy: 'Accentstrategi',
+    steps: 'Steg',
+    transcribe: 'transkribering',
+    rewrite: 'omskrivning',
+    voice: 'röst',
+  },
+  voiceHintConfigured: 'En konfigurerad röst används som default i den här installationen.',
+  voiceHintBuiltin: 'Byggd för inbyggda OpenAI-röster nu. En egen röst kan kopplas på senare via konfiguration.',
+  errors: {
+    loadConfig: 'Kunde inte läsa in konfigurationen.',
+    processFailed: 'Gormigskånsk kunde inte bearbeta inspelningen just nu.',
+    mediaRecorderMissing: 'Den här webbläsaren saknar stöd för inspelning med MediaRecorder.',
+    tooShort: 'För kort inspelning. Håll igång lite längre.',
+    micDenied: 'Mikrofonåtkomst nekades eller kunde inte startas.',
+  },
+};
+
+const runtime = window.__GORMIGSKANSK__ || {};
+const copy = runtime.copy || fallbackCopy;
+const strengthOptions = copy.strengthOptions || fallbackCopy.strengthOptions;
+const metaLabels = copy.metaLabels || fallbackCopy.metaLabels;
+const errorCopy = copy.errors || fallbackCopy.errors;
 
 const state = {
   isRecording: false,
@@ -51,13 +107,19 @@ let recordingStartedAt = 0;
 let processingTimerId = null;
 let processingStartedAt = 0;
 
-const processingStages = [
-  { afterMs: 0, label: 'Laddar upp inspelningen...' },
-  { afterMs: 1600, label: 'Transkriberar svenskan...' },
-  { afterMs: 5000, label: 'Gör om texten till skånska...' },
-  { afterMs: 9500, label: 'Bygger rösten...' },
-  { afterMs: 15000, label: 'Polerar sista dragen...' },
-];
+const processingStages = (copy.progressStages || fallbackCopy.progressStages).map((label, index) => ({
+  afterMs: [0, 1600, 5000, 9500, 15000][index] ?? index * 3000,
+  label,
+}));
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 function getBestSupportedMimeType() {
   const types = [
@@ -187,8 +249,8 @@ function renderVoiceOptions() {
 
   voiceHint.textContent =
     state.config.speakerMode === 'configured'
-      ? 'En konfigurerad röst används som default i den här installationen.'
-      : 'Byggd för inbyggda OpenAI-röster nu. En egen röst kan kopplas på senare via konfiguration.';
+      ? copy.voiceHintConfigured || fallbackCopy.voiceHintConfigured
+      : copy.voiceHintBuiltin || fallbackCopy.voiceHintBuiltin;
 }
 
 function renderOutputControls() {
@@ -214,42 +276,52 @@ function renderProgress() {
 
 function renderMeta() {
   if (!state.result) {
-    metaCards.innerHTML = '<div class="meta-card">Ingen skånska än. Kör en första testfras.</div>';
+    metaCards.innerHTML = `<div class="meta-card">${escapeHtml(copy.noResult || fallbackCopy.noResult)}</div>`;
     return;
   }
 
   const cards = [
-    `Latens: <strong>${formatLatency(state.result.meta.latencyMs)}</strong>`,
-    `TTS-röst: <strong>${state.result.meta.voice}</strong> (${state.result.meta.speakerMode === 'builtin' ? 'inbyggd' : 'konfigurerad'})`,
-    `Tempo: <strong>${Number(state.result.meta.speechSpeed).toFixed(2)}x</strong>`,
+    `${escapeHtml(metaLabels.latency)}: <strong>${escapeHtml(formatLatency(state.result.meta.latencyMs))}</strong>`,
+    `${escapeHtml(metaLabels.ttsVoice)}: <strong>${escapeHtml(state.result.meta.voice)}</strong> (${escapeHtml(
+      state.result.meta.speakerMode === 'builtin' ? metaLabels.builtin : metaLabels.configured,
+    )})`,
+    `${escapeHtml(metaLabels.tempo)}: <strong>${escapeHtml(`${Number(state.result.meta.speechSpeed).toFixed(2)}x`)}</strong>`,
   ];
 
   if (state.result.meta.sourceLanguage) {
-    cards.push(`Inputspråk: <strong>${state.result.meta.sourceLanguage}</strong>`);
+    cards.push(`${escapeHtml(metaLabels.inputLanguage)}: <strong>${escapeHtml(state.result.meta.sourceLanguage)}</strong>`);
   }
 
   if (state.result.meta.clientRecordingMs) {
-    cards.push(`Inspelning: <strong>${formatLatency(state.result.meta.clientRecordingMs)}</strong>`);
+    cards.push(`${escapeHtml(metaLabels.recording)}: <strong>${escapeHtml(formatLatency(state.result.meta.clientRecordingMs))}</strong>`);
   }
 
   if (state.result.meta.transcriptChars && state.result.meta.ttsChars) {
     cards.push(
-      `Längd: <strong>${state.result.meta.transcriptChars}</strong> tecken in, <strong>${state.result.meta.ttsChars}</strong> tecken ut`,
+      `${escapeHtml(metaLabels.length)}: <strong>${escapeHtml(String(state.result.meta.transcriptChars))}</strong> ${escapeHtml(
+        metaLabels.charsIn,
+      )}, <strong>${escapeHtml(String(state.result.meta.ttsChars))}</strong> ${escapeHtml(metaLabels.charsOut)}`,
     );
   }
 
   if (state.result.meta.accentStrategy) {
-    cards.push(`Accentstrategi: <strong>${state.result.meta.accentStrategy}</strong>`);
+    cards.push(`${escapeHtml(metaLabels.accentStrategy)}: <strong>${escapeHtml(state.result.meta.accentStrategy)}</strong>`);
   }
 
   if (state.result.meta.timings) {
     cards.push(
-      `Steg: <strong>${formatLatency(state.result.meta.timings.transcribeMs)}</strong> transkribering, <strong>${formatLatency(state.result.meta.timings.rewriteMs)}</strong> omskrivning, <strong>${formatLatency(state.result.meta.timings.ttsMs)}</strong> röst`,
+      `${escapeHtml(metaLabels.steps)}: <strong>${escapeHtml(
+        formatLatency(state.result.meta.timings.transcribeMs),
+      )}</strong> ${escapeHtml(metaLabels.transcribe)}, <strong>${escapeHtml(
+        formatLatency(state.result.meta.timings.rewriteMs),
+      )}</strong> ${escapeHtml(metaLabels.rewrite)}, <strong>${escapeHtml(
+        formatLatency(state.result.meta.timings.ttsMs),
+      )}</strong> ${escapeHtml(metaLabels.voice)}`,
     );
   }
 
-  state.result.meta.warnings.forEach((warning) => {
-    cards.push(`<span class="warning-text">${warning}</span>`);
+  (state.result.meta.warnings || []).forEach((warning) => {
+    cards.push(`<span class="warning-text">${escapeHtml(warning)}</span>`);
   });
 
   metaCards.innerHTML = cards.map((card) => `<div class="meta-card">${card}</div>`).join('');
@@ -280,13 +352,13 @@ function renderAudio() {
 
 function renderRecordButton() {
   if (state.isPreparingRecorder) {
-    recordButton.textContent = 'Öppnar mikrofonen...';
+    recordButton.textContent = copy.recordButtonPreparing || fallbackCopy.recordButtonPreparing;
   } else if (state.isRecording) {
-    recordButton.textContent = 'Tryck för å stoppa';
+    recordButton.textContent = copy.recordButtonStop || fallbackCopy.recordButtonStop;
   } else if (state.isSubmitting) {
-    recordButton.textContent = 'Bearbetar...';
+    recordButton.textContent = copy.recordButtonSubmitting || fallbackCopy.recordButtonSubmitting;
   } else {
-    recordButton.textContent = 'Tryck å snacka';
+    recordButton.textContent = copy.recordButtonIdle || fallbackCopy.recordButtonIdle;
   }
 
   recordButton.classList.toggle('is-recording', state.isRecording);
@@ -297,13 +369,13 @@ function renderRecordButton() {
 function renderText() {
   transcriptBox.textContent = state.result
     ? state.result.transcript
-    : 'Transkriptet dyker upp här efter första körningen.';
+    : copy.transcriptPlaceholder || fallbackCopy.transcriptPlaceholder;
   transformedBox.textContent = state.result
     ? state.result.transformedText
-    : 'Den omskrivna repliken landar här.';
+    : copy.transformedPlaceholder || fallbackCopy.transformedPlaceholder;
   ttsBox.textContent = state.result
     ? state.result.ttsText
-    : 'Ett mer fonetiskt script för röstmotorn landar här.';
+    : copy.ttsPlaceholder || fallbackCopy.ttsPlaceholder;
 }
 
 function renderStatus() {
@@ -312,26 +384,26 @@ function renderStatus() {
     return;
   }
   if (state.isPreparingRecorder) {
-    setStatus('Tillåt mikrofonen om webbläsarn frågar, så drar inspelningen igång direkt.');
+    setStatus(copy.statusPreparing || fallbackCopy.statusPreparing);
     return;
   }
   if (state.isRecording) {
-    setStatus('Spelar in nu. Tryck igen när du vill stoppa.');
+    setStatus(copy.statusRecording || fallbackCopy.statusRecording);
     return;
   }
   if (state.isSubmitting) {
-    setStatus('Jobbar på det...');
+    setStatus(copy.statusSubmitting || fallbackCopy.statusSubmitting);
     return;
   }
   if (state.playbackNeedsTap) {
-    setStatus('Klart. Tryck på Spela upp nu för att höra resultatet.');
+    setStatus(copy.statusPlayback || fallbackCopy.statusPlayback);
     return;
   }
   if (state.result) {
-    setStatus('Klart. Tryck igen för nästa runda.');
+    setStatus(copy.statusDone || fallbackCopy.statusDone);
     return;
   }
-  setStatus('Tryck å snacka, på vilket språk du vill.');
+  setStatus(copy.statusIdle || fallbackCopy.statusIdle);
 }
 
 function render() {
@@ -349,7 +421,7 @@ async function loadConfig() {
   try {
     const response = await fetch('/api/config');
     if (!response.ok) {
-      throw new Error('Failed to load config');
+      throw new Error(errorCopy.loadConfig || fallbackCopy.errors.loadConfig);
     }
 
     state.config = await response.json();
@@ -357,6 +429,7 @@ async function loadConfig() {
     state.speechSpeed = state.config.speechSpeed ?? state.speechSpeed;
     render();
   } catch (_error) {
+    state.error = errorCopy.loadConfig || fallbackCopy.errors.loadConfig;
     render();
   }
 }
@@ -385,7 +458,7 @@ async function submitAudio(audioBlob, mimeType, durationMs) {
 
     const payload = await response.json().catch(() => null);
     if (!response.ok || !payload) {
-      throw new Error((payload && payload.message) || 'Dialektlab failed to process the recording.');
+      throw new Error((payload && payload.message) || errorCopy.processFailed || fallbackCopy.errors.processFailed);
     }
 
     state.result = payload;
@@ -419,7 +492,7 @@ async function startRecording() {
   }
 
   if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    state.error = 'Den här webbläsaren saknar stöd för inspelning med MediaRecorder.';
+    state.error = errorCopy.mediaRecorderMissing || fallbackCopy.errors.mediaRecorderMissing;
     render();
     return;
   }
@@ -455,7 +528,7 @@ async function startRecording() {
     mediaRecorder.addEventListener('stop', () => {
       const durationMs = Date.now() - recordingStartedAt;
       if (durationMs < 250 || audioChunks.length === 0) {
-        state.error = 'För kort inspelning. Håll inne knappen lite längre.';
+        state.error = errorCopy.tooShort || fallbackCopy.errors.tooShort;
         render();
         return;
       }
@@ -474,7 +547,7 @@ async function startRecording() {
     mediaRecorder = null;
     audioChunks = [];
     state.isPreparingRecorder = false;
-    state.error = 'Mikrofonåtkomst nekades eller kunde inte startas.';
+    state.error = errorCopy.micDenied || fallbackCopy.errors.micDenied;
     render();
   }
 }

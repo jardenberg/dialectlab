@@ -2,7 +2,7 @@
 
 Public demo: [gormigskansk.jardenberg.se](https://gormigskansk.jardenberg.se)
 
-This repo contains the standalone browser app behind Gormigskånsk: a small iPhone-friendly demo that takes spoken language input, rewrites it into a more Skånska-flavoured Swedish version, and returns audio in a Skånska target voice.
+This repo contains the standalone browser app behind Gormigskånsk: a small iPhone-friendly demo that takes spoken input in any language, rewrites it into a more Skånska-flavoured Swedish version, and returns audio in a Skånska target voice.
 
 The repo name stayed `dialektlab`, but the public-facing product and branding are now `Gormigskånsk`.
 
@@ -24,6 +24,17 @@ This project is intentionally separate from `2026GPT`.
 - recording is placed first in the UI so people can start immediately
 - processing feedback is shown with staged status text and a progress bar
 - source speech can be auto-detected instead of being locked to Swedish
+- localized landing pages are available at `/`, `/en`, `/es`, `/pl`, and `/fr`
+
+## Localized URLs
+
+- `https://gormigskansk.jardenberg.se/` for Swedish
+- `https://gormigskansk.jardenberg.se/en` for English
+- `https://gormigskansk.jardenberg.se/es` for Spanish
+- `https://gormigskansk.jardenberg.se/pl` for Polish
+- `https://gormigskansk.jardenberg.se/fr` for French
+
+The chrome and metadata are localized per route. The voice pipeline stays the same: any supported spoken input is turned into Swedish with a Skånska flavour on output.
 
 ## Stack
 
@@ -156,13 +167,14 @@ DIALECTLAB_IP_MAX=12
 - social preview source: `public/og-card.svg`
 - social preview PNG: `public/og-card.png`
 
-The public site metadata is configured in `public/index.html`.
+Page metadata, canonical URLs, and hreflang tags are rendered from `lib/locales.js` and `lib/renderPage.js`.
 
 ## Files
 
 - `server.js`: Express server and API routes
+- `lib/locales.js`: locale bundles, route mapping, metadata
+- `lib/renderPage.js`: server-rendered HTML shell per locale
 - `lib/openaiDialectDemo.js`: OpenAI + ElevenLabs pipeline
-- `public/index.html`: page shell and metadata
 - `public/app.js`: tap-to-start/tap-to-stop browser logic
 - `public/styles.css`: styling
 - `CHANGELOG.md`: project history

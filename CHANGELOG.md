@@ -1,100 +1,90 @@
 # Changelog
 
-All notable changes to this project are tracked here.
+All notable changes to Gormigskånsk are tracked here.
 
-This changelog is reconstructed from the actual build history in this thread, not only from commit messages.
+This changelog is reconstructed from the actual iteration history in this build thread, not just from commit messages.
 
-## 2026-04-03
+## v3.0.0 - 2026-04-03
 
-### Concept and scope
+### Multilingual input
 
-- started as an experiment around transforming spoken Swedish into Skånska output in a browser on iPhone
-- narrowed the goal from Göteborgska to the broader and more practical `Swedish in, Skånska out`
-- chose a backend streaming pipeline rather than trying to run everything locally in Safari
-- explicitly targeted one-speaker, demo-quality, push-button UX rather than true zero-latency live dubbing
+- removed the hard Swedish lock from transcription
+- allowed source language auto-detection on the input side
+- changed the rewrite step so non-Swedish speech can go straight to Swedish-with-Skånska output in one pass
+- verified the flow with English input and Swedish/Skånska output
+- updated the UI copy so the product clearly says any input language is welcome
 
-### Repo setup
+### Localized routes
 
-- initially prototyped in the `2026GPT` workspace by mistake
-- removed that work from the unrelated repo
-- created a separate standalone repo at `dialektlab`
-- pushed the standalone project to `jardenberg/dialectlab`
-
-### First MVP
-
-- built a standalone Node + Express app with a plain browser frontend
-- added push-to-talk browser recording
-- added an upload API for audio input
-- added OpenAI transcription
-- added a rewrite step that turns Swedish into more Skånska-flavoured text
-- added TTS playback in the browser
-
-### OpenAI-only phase
-
-- first version used OpenAI for transcription, rewrite, and TTS
-- proved that the architecture worked technically
-- exposed the main limitation: wording changed somewhat, but the accent shift was weak
-
-### ElevenLabs integration
-
-- connected ElevenLabs as the default TTS backend
-- used the configured target voice `CuaAIFbkzX2kaNH5EtHZ`
-- kept OpenAI for transcription and dialect rewrite
-- moved the default TTS path away from OpenAI and into ElevenLabs for better voice character
-
-### Skånska steering
-
-- corrected backend prompting so the target dialect was explicitly Skånska
-- added protection against bad `accentStrategy` text that mentioned Göteborgska or other dialects
-- separated readable UI text from a more phonetic TTS script to push the output voice harder
-
-### Speed and pacing
-
-- lowered the default voice speed to make the output feel slower and more Skånska
-- removed the earlier idea of local ffmpeg pitch/tempo post-processing
-- stayed inside native provider controls instead
-- later switched the default ElevenLabs model to `eleven_flash_v2_5` to improve latency
-
-### Long-recording fixes
-
-- found that the rewrite prompt was explicitly encouraging concise output
-- removed that compression bias
-- added protection against over-shortened rewrites by comparing output length to source length
-- added a repair pass when rewritten content became suspiciously shorter than the transcript
-- increased the upload size cap from `10 MB` to `25 MB`
-- added basic timing and size metadata to help debug duration mismatches
-
-### Recording UX
-
-- replaced the fragile hold-to-talk interaction with tap-to-start / tap-to-stop recording
-- improved first-run microphone permission flow by making recording start from a simple tap
-- removed the older `pointerleave`-driven stop behaviour that could end recordings early
-- moved the recording block above the settings so people can start immediately
-
-### Feedback and progress
-
-- added staged processing feedback while the backend is working
-- added a progress bar and status text during upload, transcription, rewrite, and voice generation
-- surfaced timing breakdowns in the UI so it is clearer where time is being spent
-
-### Model tuning
-
-- benchmarked rewrite latency and quality across candidate OpenAI models
-- moved the rewrite default to `gpt-5.4-mini`
-- kept `gpt-4o-mini-transcribe` as the transcription default
-- kept ElevenLabs Flash as the default speech renderer for the public demo
-
-### Branding and deployment
-
-- shifted public branding from the generic internal name `Dialektlab` to `Gormigskånsk`
-- updated headline and metadata to match the public pun and domain
-- added favicon and social sharing assets
-- generated `public/og-card.png` from the source artwork in `public/og-card.svg`
-- deployed the app to Railway
-- published the public site at `https://gormigskansk.jardenberg.se`
+- added server-rendered locale bundles for Swedish, English, Spanish, Polish, and French
+- introduced route-based language versions at `/`, `/en`, `/es`, `/pl`, and `/fr`
+- localized page chrome, labels, button text, status text, and metadata per route
+- added canonical and `hreflang` links for the locale pages
+- moved page rendering out of the static `public/index.html` path and into server-rendered HTML
 
 ### Documentation
 
-- documented Railway deployment and environment configuration
-- clarified which env vars matter for the ElevenLabs path and which are only fallback settings
-- updated the README to reflect the current public product, not just the original lab prototype
+- updated README to describe multilingual input and locale URLs
+- replaced the flat changelog narrative with versioned milestones
+
+## v2.2.0 - 2026-04-03
+
+### UX polish
+
+- replaced the older hold-to-talk interaction with tap-to-start / tap-to-stop recording
+- moved the recording block above settings so visitors can start immediately
+- changed the landing copy from generic demo wording into public-facing Gormigskånsk branding
+- simplified the Safari playback explanation and made it less technical
+- updated labels such as `OUTPUT` to `SKÅNSKA`
+- added cache-busting on static assets to flush stale UI text from Safari caches
+
+### Progress and reliability
+
+- added staged progress text during upload, transcription, rewrite, and TTS
+- added a progress bar while the backend is working
+- surfaced latency, timing, and length metadata in the UI
+- fixed premature truncation by removing a concision bias in the rewrite prompt
+- added a repair pass when rewritten output became suspiciously shorter than the source
+- raised the upload cap from `10 MB` to `25 MB`
+
+### Branding and deployment
+
+- renamed the public-facing product from the internal `Dialektlab` label to `Gormigskånsk`
+- added favicon and OG assets for sharing
+- pushed the standalone repo to GitHub
+- documented Railway deployment
+- deployed the public site at `https://gormigskansk.jardenberg.se`
+
+## v2.0.0 - 2026-04-03
+
+### Backend shift for speed and quality
+
+- moved the default speech rendering path from OpenAI TTS to ElevenLabs
+- connected the configured target voice `CuaAIFbkzX2kaNH5EtHZ`
+- kept OpenAI for transcription and dialect rewrite control
+- introduced separate readable output text and a more phonetic TTS script to push the accent harder
+- corrected prompt drift so the accent strategy always targets Skånska rather than other Swedish dialects
+- slowed the default voice speed to make the output feel less rushed and more Skånska
+- benchmarked rewrite models and moved the text rewrite default to `gpt-5.4-mini`
+- moved the default ElevenLabs renderer to `eleven_flash_v2_5` for better latency
+
+## v1.0.0 - 2026-04-03
+
+### Standalone MVP
+
+- created a separate standalone repo after the first prototype accidentally landed in the unrelated `2026GPT` workspace
+- built the first working Node + Express app with a plain browser frontend
+- added browser microphone capture and upload
+- added OpenAI transcription
+- added a Skånska rewrite step
+- added audio playback of the transformed result in the browser
+- proved the core architecture worked end-to-end on iPhone-friendly web tech
+
+## v0.1.0 - 2026-04-03
+
+### Prehistory
+
+- started from the broader idea of live dialect conversion in mobile Safari
+- narrowed the concept from `Göteborgska in -> Skånska out` to the more practical `Swedish in -> Skånska out`
+- decided early to prefer a backend streaming pipeline over trying to run everything locally in the browser
+- explicitly targeted one speaker, demo quality, and fun over perfect zero-latency live dubbing
