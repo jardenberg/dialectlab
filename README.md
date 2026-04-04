@@ -53,7 +53,7 @@ Current defaults bias for latency while keeping decent rewrite quality:
 DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
 DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
 ELEVENLABS_MODEL_ID=eleven_turbo_v2_5
-DIALECTLAB_SPEECH_SPEED=0.76
+DIALECTLAB_SPEECH_SPEED=0.95
 ```
 
 Notes:
@@ -106,7 +106,7 @@ DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
 DIALECTLAB_INPUT_LANGUAGE=
 DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
 DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
-DIALECTLAB_SPEECH_SPEED=0.76
+DIALECTLAB_SPEECH_SPEED=0.95
 DIALECTLAB_TARGET_DIALECT=Skanska
 DIALECTLAB_IP_MAX=12
 ```
@@ -161,7 +161,7 @@ ELEVENLABS_MODEL_ID=eleven_turbo_v2_5
 DIALECTLAB_AUDIO_BACKEND=elevenlabs_tts
 DIALECTLAB_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
 DIALECTLAB_TEXT_MODEL=gpt-5.4-mini
-DIALECTLAB_SPEECH_SPEED=0.76
+DIALECTLAB_SPEECH_SPEED=0.95
 DIALECTLAB_TARGET_DIALECT=Skanska
 DIALECTLAB_IP_MAX=12
 ```
@@ -186,10 +186,10 @@ Page metadata, canonical URLs, and hreflang tags are rendered from `lib/locales.
 
 When ElevenLabs is active, the demo currently exposes two configured voice buttons:
 
+- `JJ-Skånska` (default)
 - `ElevenLabs-Skånska`
-- `JJ-Skånska`
 
-The first uses `ELEVENLABS_VOICE_ID`. The second uses `ELEVENLABS_JJ_VOICE_ID`.
+The default uses `ELEVENLABS_JJ_VOICE_ID`. The secondary voice uses `ELEVENLABS_VOICE_ID`.
 
 ## Files
 
