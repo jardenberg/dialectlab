@@ -4,6 +4,13 @@ All notable changes to Gormigskånsk are tracked here.
 
 This changelog is reconstructed from the actual iteration history in this build thread, not just from commit messages.
 
+## v3.1.1 - 2026-04-04
+
+### Label cleanup
+
+- corrected the configured ElevenLabs voice labels to `ElevenLabs-Skånska` and `JJ-Skånska`
+- bumped the public build id so the corrected labels are easy to verify live
+
 ## v3.1.0 - 2026-04-04
 
 ### Voice options and model defaults

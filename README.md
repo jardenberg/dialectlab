@@ -186,8 +186,8 @@ Page metadata, canonical URLs, and hreflang tags are rendered from `lib/locales.
 
 When ElevenLabs is active, the demo currently exposes two configured voice buttons:
 
-- `ElevenLabs-Skanska`
-- `JJ-Skanska`
+- `ElevenLabs-Skånska`
+- `JJ-Skånska`
 
 The first uses `ELEVENLABS_VOICE_ID`. The second uses `ELEVENLABS_JJ_VOICE_ID`.
 
